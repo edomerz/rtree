@@ -1,0 +1,8 @@
+RecBinTree
+
+- no dupilcates
+- no iterators, hence no parent field. working on the entire tree
+- balanced
+-  use height
+- levels
+

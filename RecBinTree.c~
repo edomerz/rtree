@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+#include "rtree.h"
+
+typedef struct rtn_t
+{
+	void* data;
+	size_t bf;
+	rtn_t *r;
+	rtn_t *l;
+}rtn_t;
+
+struct rtree_adt
+{
+	rtn_t r;
+	rtn_t e;
+	int (*cmp)(void *data1, void *data2);
+}rtree_adt;
+	
+/*	
+typedef int (*cmp)(void *data1, void *data2);
+typedef int (*action_func)(void *data, void *param);
+
+typedef struct rtree_adt rtree_t;
+
+/* creates rtree_t*/
+rtree_t *RTCreate(cmp func_ptr);
+ destroys the tree
+void RTDestroy(rtree_t *tree); -> post order ( post refers to the parent node  2 3 1)
+
+ return 1 if empty, else 0
+int IsEmpty(rtree_t *tree);
+
+ return longest path between tree to his leafs
+size_t RTHeight(rtree_t *tree);
+
+ return number of node in tree
+size_t RTSize(rtree_t *tree);
+
+ insert node to tree according to key field
+void RTInsert(rtree_t *tree, void *key);
+
+ removes node with given key
+void RTRemove(rtree_t *tree, void *key);
+
+ if key in tree , returns 1 else 0
+int RTFind(rtree_t *tree, void *key);
+
+ execute action func on each node in tree
+/* returns action func exit status*/
+int RTForEach(rtree_t *tree, action_func fp, void *param); - does not touch the key -> in order 213
+*/
