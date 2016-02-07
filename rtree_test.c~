@@ -1,155 +1,266 @@
-#include <stdio.h>
+/* #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
-#include <assert.h>
+#include <crtdbg.h> */
+
+#define NODES_NUM 6
 
 #include "rtree.h"
-
-typedef struct rtn_t
-{
-	void* data;
-	struct rtn_t *next[2];
-	int bf;
-}rtn_t;
-
-struct rtree_adt
-{
-	rtn_t *r;
-	is_before func_ptr;
-}rtree_adt;
-
-#define START(x) (printf("\n[%s %s %d]%s\n", __FILE__, __func__, __LINE__, (x)))
-
-int IsBefore(const void *data1, const void *data2);	
-int ActionFunc(void *data, void *param);
-
+typedef struct rtree_node *rtree_iter_t;
 typedef struct trunk trunk_t;
 
-rtn_t * RTreeGetRoot(const rtree_t *rtree);
-void show_tree(rtn_t * root, struct trunk *prev, int is_left);
+int IsBefore(const void *new_data, const void *current_node_data);
+void RTreePrintLevelOrder(rtree_t *tree);
+int ActFunc(void *data, void *param);
 
+rtree_iter_t RTreeGetRoot(const rtree_t *rtree);
+void show_tree(rtree_iter_t root, struct trunk *prev, int is_left);
 
-int main(int argc, char* argv[], char** envp)
+int main()
 {
-	rtree_t *rt1 = NULL;
-	size_t arr[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-/*	size_t arr[10] = {2, 1, 3, 4, 5, 6, 7, 8, 9, 10};*/
-	size_t arr_len = sizeof(arr) / sizeof(size_t);
-	int i = 0;
-	size_t find1 = arr[0];
-/*	size_t find2 = arr[9];*/
-	void *ret1 = NULL;
-		
-		
-	
-	
-	printf("\n[%s %s %d]RTreeCreate\n", __FILE__, __func__, __LINE__);
-	/*__________  RTreeCreate  __________*/
-	rt1 = RTreeCreate(&IsBefore);
-	printf("sizeof(rt1):%lu\n", sizeof(rt1));
-	/*_________________________  END RTreeCreate _______________________*/
-	
-	
-	printf("\n[%s %s %d]RTreeIsEmpty\n", __FILE__, __func__, __LINE__);
-	/*_____________________________  RTreeIsEmpty  _______________________*/
+	int num1_ll_tree = 200;
+	int num2_ll_tree = 300;
+	int num3_ll_tree = 80;
+	int num4_ll_tree = 70;
+	int num5_ll_tree = 100;
+	int impact_num_ll_tree = 60;
 
-	printf("RTreeIsEmpty(rt1): %i,	expected: 1\n", RTreeIsEmpty(rt1));	
-	
-	/*_________________________  END RTreeIsEmpty _______________________*/
-	
-	printf("\n[%s %s %d]RTreeHeight\n", __FILE__, __func__, __LINE__);
-	/*_____________________________  RTreeHeight  _______________________*/
-	
-	printf("RTreeHeight(rt1): %d,  excpected: -1\n", RTreeHeight(rt1));
-	
-	/*_________________________  END RTreeHeight _______________________*/
-	
-	printf("\n[%s %s %d]RTreeSize\n", __FILE__, __func__, __LINE__);
-	/*________________  RTreeSize  _______________________*/
-	
-	printf("RTreeSize(rt1): %lu, expected:0\n", RTreeSize(rt1));
-	
-	/*______________END RTreeSize _______________________*/
+	int num1_lr_tree = 200;
+	int num2_lr_tree = 300;
+	int num3_lr_tree = 80;
+	int num4_lr_tree = 70;
+	int num5_lr_tree = 100;
+	int impact_num_lr_tree = 90;
+
+	int num1_rr_tree = 200;
+	int num2_rr_tree = 300;
+	int num3_rr_tree = 80;
+	int num4_rr_tree = 250;
+	int num5_rr_tree = 350;
+	int impact_num_rr_tree = 380;
+
+	int num1_rl_tree = 200;
+	int num2_rl_tree = 300;
+	int num3_rl_tree = 80;
+	int num4_rl_tree = 250;
+	int num5_rl_tree = 350;
+	int impact_num_rl_tree = 280;
+
+	int find_this = 80;
+	int wont_find_this = 360;
 
 
-	printf("\n[%s %s %d]RTreeFind\n", __FILE__, __func__, __LINE__);
-	/*________________  RTreeFind  _______________________*/
-	printf("RTreeFind(rt1, (void*)&find1: %p, 		expected:nil\n", 
-	RTreeFind(rt1, (void*)&find1));
-	/*______________END RTreeFind _______________________*/
-	
-	printf("\n[%s %s %d]RTreeForEach\n", __FILE__, __func__, __LINE__);
-	/*________________  RTreeForEach  _______________________*/
-	RTreeForEach(rt1, &ActionFunc, (void*)1);
-	/*______________END RTreeForEach _______________________*/
+	/* creating the tree */
+	rtree_t *ll_tree = RTreeCreate(IsBefore);
+	rtree_t *lr_tree = RTreeCreate(IsBefore);
+	rtree_t *rr_tree = RTreeCreate(IsBefore);
+	rtree_t *rl_tree = RTreeCreate(IsBefore);
 
-	printf("\n[%s %s %d]RTreeInsert 1\n", __FILE__, __func__, __LINE__);
-	/*__RTreeInsert 1__*/
+	printf("\n");
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+
+	/* checking tree is empty using Size and IsEmpty */
+	printf("size of the empty tree: %lu\n", RTreeSize(rr_tree));
+	printf("is the tree empty?: %s\n", RTreeIsEmpty(rr_tree) ? "yes" : "no");
+
+	/* INSERTING NODES */
+	/* *************************************************************** */
+	/* inserting nodes to ll_tree */
+	RTreeInsert(ll_tree, &num1_ll_tree);
+	RTreeInsert(ll_tree, &num2_ll_tree);
+	RTreeInsert(ll_tree, &num3_ll_tree);
+	RTreeInsert(ll_tree, &num4_ll_tree);
+	RTreeInsert(ll_tree, &num5_ll_tree);
+	RTreeInsert(ll_tree, &impact_num_ll_tree);
+
+	/* inserting nodes to lr_tree */
+	RTreeInsert(lr_tree, &num1_lr_tree);
+	RTreeInsert(lr_tree, &num2_lr_tree);
+	RTreeInsert(lr_tree, &num3_lr_tree);
+	RTreeInsert(lr_tree, &num4_lr_tree);
+	RTreeInsert(lr_tree, &num5_lr_tree);
+	RTreeInsert(lr_tree, &impact_num_lr_tree);
+
+	/* inserting nodes to rr_tree */
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	RTreeInsert(rr_tree, &num1_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	RTreeInsert(rr_tree, &num2_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	RTreeInsert(rr_tree, &num3_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	RTreeInsert(rr_tree, &num4_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	RTreeInsert(rr_tree, &num5_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	RTreeInsert(rr_tree, &impact_num_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+
+	/* inserting nodes to rl_tree */
+	RTreeInsert(rl_tree, &num1_rl_tree);
+	RTreeInsert(rl_tree, &num2_rl_tree);
+	RTreeInsert(rl_tree, &num3_rl_tree);
+	RTreeInsert(rl_tree, &num4_rl_tree);
+	RTreeInsert(rl_tree, &num5_rl_tree);
+	RTreeInsert(rl_tree, &impact_num_rl_tree);
+
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+
+	/* TESTING THE SIZE FUNCTION */
+	/* *************************************************************** */
+	printf("after filling up the tree, the expected size is: (update)\n");
+	printf("actual size: %lu\n", RTreeSize(rr_tree));
+
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+
+	/* TESTING THE FIND FUNCTION */
+	/* *************************************************************** */
+	printf("searching after the number %d (exists in the tree):\n", find_this);
+	printf("found it: %d\n", *(int *)RTreeFind(rl_tree, &find_this));
+	printf("searching after the number %d (doesn't exist in the tree):\n", wont_find_this);
+	printf("360 is not here: %p\n", RTreeFind(rl_tree, &wont_find_this));
+
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+
+	/* TESTING THE REMOVE FUNCTION ON EACH OF THE 4 TREES */
+	/*****************************************/
 	
-		printf("before insert - RTreeIsEmpty(rt1): %i,	expected: 1\n", RTreeIsEmpty(rt1));	
-		
-		RTreeInsert(rt1, (void*)&arr[4]);
-		
-		printf("after insert - RTreeIsEmpty(rt1): %i,	expected: 0\n", RTreeIsEmpty(rt1));
-		printf("RTreeHeight(rt1): %d,  excpected: 0\n", RTreeHeight(rt1));	
-		printf("RTreeSize(rt1): %lu, expected:1\n", RTreeSize(rt1));
-		
-		RTreeForEach(rt1, &ActionFunc, (void*)1);
-	/***END RTreeInsert 1 ***/
+	printf("here's the first tree:\n");
+	show_tree(RTreeGetRoot(ll_tree), 0, 0);
+
+	printf("removing the numbers:\n %d (2 children),\n %d (will have 1 children "
+		"once erasing %d),\n %d (leaf).\nThis will create LL tree "
+		"that's going to be balanced.\n",
+		num1_ll_tree, num5_ll_tree, num1_ll_tree, num2_ll_tree);
+
+	RTreeRemove(ll_tree, &num1_ll_tree);
+	show_tree(RTreeGetRoot(ll_tree), 0, 0);
+	RTreeRemove(ll_tree, &num5_ll_tree);
+	show_tree(RTreeGetRoot(ll_tree), 0, 0);
+	RTreeRemove(ll_tree, &num2_ll_tree);
+	show_tree(RTreeGetRoot(ll_tree), 0, 0);
+	RTreeRemove(ll_tree, &wont_find_this);
+
+	printf("here's the tree now:\n");
+	show_tree(RTreeGetRoot(ll_tree), 0, 0);
+
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+
+	/*****************************************/
 	
-	/*________________  RTreeInsert 2  _______________________*/
-	START("RTreeInsert 2");
+/*	printf("here's the second tree:\n");*/
+/*	show_tree(RTreeGetRoot(lr_tree), 0, 0);*/
+
+/*	printf("removing the numbers:\n %d,\n %d,\n %d.\nThis will create LR tree "*/
+/*		"that's going to be balanced.\n",*/
+/*		num4_lr_tree, num2_lr_tree, num1_lr_tree);*/
+
+/*	RTreeRemove(lr_tree, &num4_lr_tree);*/
+/*	show_tree(RTreeGetRoot(lr_tree), 0, 0);*/
+/*	RTreeRemove(lr_tree, &num2_lr_tree);*/
+/*	show_tree(RTreeGetRoot(lr_tree), 0, 0);*/
+/*	RTreeRemove(lr_tree, &num1_lr_tree);*/
+
+/*	printf("here's the tree now:\n");*/
+/*	show_tree(RTreeGetRoot(lr_tree), 0, 0);*/
+
+/*	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");*/
+
+	/*****************************************/
 	
-	for(i = 0; i < arr_len; ++i)
+	printf("here's the third tree:\n");
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+
+	printf("removing the numbers:\n %d (root),\n %d (new root after removing the "
+		" original one),\n %d (new root after removing the previous one).\n"
+		"This will create RR tree that's going to be balanced.\n",
+		num2_rr_tree, num4_rr_tree, num1_rr_tree);
+
+	RTreeRemove(rr_tree, &num2_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	RTreeRemove(rr_tree, &num4_rr_tree);
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+	
+	RTreeRemove(rr_tree, &num1_rr_tree);
+
+	printf("here's the tree now:\n");
+	show_tree(RTreeGetRoot(rr_tree), 0, 0);
+
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+
+	/*****************************************/
+	
+/*	printf("here's the forth tree:\n");*/
+/*	show_tree(RTreeGetRoot(rl_tree), 0, 0);*/
+
+/*	printf("removing the numbers: %d, %d and %d\nwill create RL tree "*/
+/*		"that's going to be balanced.\n",*/
+/*		num5_rl_tree, num3_rl_tree, num1_rl_tree);*/
+
+/*	RTreeRemove(rl_tree, &num5_rl_tree);*/
+/*	RTreeRemove(rl_tree, &num3_rl_tree);*/
+/*	RTreeRemove(rl_tree, &num1_rr_tree);*/
+
+/*	printf("here's the tree now:\n");*/
+/*	show_tree(RTreeGetRoot(rl_tree), 0, 0);*/
+
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+
+	/*****************************************/
+
+	/* TESTING THE FOREACH FUNCTION (WORKS INORDER) */
+	/*****************************************/
+	printf("Tesing Foreach function: \n");
+	RTreeForEach(rl_tree, ActFunc, NULL);
+
+	printf("*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*\n");
+	
+	
+	
+	
+	
+	/* DESTROYING THE TREES */
+	/*****************************************/
+	show_tree(RTreeGetRoot(ll_tree), 0, 0);
+	RTreeDestroy(ll_tree);
+	
+	show_tree(RTreeGetRoot(lr_tree), 0, 0);
+	RTreeDestroy(lr_tree);
+	
+/*	show_tree(RTreeGetRoot(rr_tree), 0, 0);*/
+/*	RTreeDestroy(rr_tree);*/
+	
+	show_tree(RTreeGetRoot(rl_tree), 0, 0);
+	RTreeDestroy(rl_tree);
+	
+
+	/*
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+	_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
+	*/
+
+	return 0;
+}
+
+/* returns 1 if 'new_data' should come before (= smaller) 'current_node_data' */
+int IsBefore(const void *new_data, const void *current_node_data)
+{
+	printf("new_data: %d ,current_node_data: %d \n", *(int*)new_data, *(int*)current_node_data);
+	return (*(int *)new_data < *(int *)current_node_data);
+}
+
+int ActFunc(void *data, void *param)
+{
+	static int counter = 1;
+
+	printf("***  the data of node %d is : %d  ***\n\n",
+		counter, *(int *)data);
+	++counter;
+
+	if (NODES_NUM == counter - 1)
 	{
-		RTreeInsert(rt1, (void*)&arr[i]);
-	
-		printf("\nafter insert - RTreeIsEmpty(rt1): %i,	expected: 0\n", RTreeIsEmpty(rt1));
-		printf("RTreeHeight(rt1): %d,  excpected:%i \n", RTreeHeight(rt1), i);	
-		printf("RTreeSize(rt1): %lu, expected: %i\n", RTreeSize(rt1), i + 2);
-		
-		show_tree(RTreeGetRoot(rt1), 0, 0);
+		counter = 1;
 	}
-	
-	/*______________END RTreeInsert 2 _______________________*/
-	
-	/*________________  RTreeForEach  _______________________*/
-	RTreeForEach(rt1, &ActionFunc, (void*)1);
-	/*______________END RTreeForEach _______________________*/
-	
-	show_tree(RTreeGetRoot(rt1), 0, 0);
-	
-	
-	/*________________  RTreeFind  _______________________*/
-	printf("\nafter insert - RTreeIsEmpty(rt1): %i,	expected: 0\n", RTreeIsEmpty(rt1));
-	ret1 = RTreeFind(rt1, (void*)&find1);
-	printf("find1: %lu\n", find1);
-	printf("RTreeFind(rt1, (void*)&find1: %p, %lu 		expected:1\n", 
-			ret1, *(size_t*)ret1);
-	
-	printf("arr[4]: %lu\n", arr[4]);		
-	ret1 = RTreeFind(rt1, (void*)&arr[4]);
-	printf("RTreeFind(rt1, (void*)&find1: %p, %lu 		expected:1\n", 
-			ret1, *(size_t*)ret1);
 
-	printf("\n[%s %s %d]RTreeDestroy\n", __FILE__, __func__, __LINE__);
-	/*________________  RTreeDestroy  __________*/
-	RTreeDestroy(rt1);
-	/*____________  END RTreeDestroy _______________________*/
-	
-	return(0);
-}
-
-/* returns 1 if data stored in add_data1 is smaller then data stored add_data2*/
-/* else 0*/
-int IsBefore(const void *add_data1, const void *add_data2)
-{
-	printf("add_data1:%lu, add_data2:%lu\n", *(size_t*)add_data1, *(size_t*)add_data2);
-	return(*(size_t*)add_data1 < *(size_t*)add_data2);
-}
-
-int ActionFunc(void *data, void *param)
-{
-	printf("data: %lu\n", *(size_t*)data);
-	
-	return(0);
+	return (0);
 }

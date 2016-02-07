@@ -123,7 +123,6 @@ size_t RTreeSize(const rtree_t *tree)
 	return(1 + TSize(tree->r->next[0]) + TSize(tree->r->next[1]));
 }
 
-
 /* return 1 if data == seek, else 0*/
 static int IsEqual(is_before fp, const void *data, const void *seek)
 {
@@ -289,8 +288,91 @@ int RTreeInsert(rtree_t *tree, void *key)
 	return(0);
 }
 
+static void SwapData(void **data1, void **data2)
+{
+	size_t *tmp = *(size_t**)data1;
+	*(size_t**)data1 = *(size_t**)data2;
+	*(size_t**)data2 = tmp;
+}
+/*finds the prev of root, and changes the link to prev to NULL*/
+static rtn_t *Next(rtn_t *parent, rtn_t *root, is_before fp)
+{
+	rtn_t *ret = root;
+	if(!root)
+	{
+		return(NULL);
+	}
+	
+	if(!(ret = Next(root, root->next[1], fp)))
+	{
+		int dir = fp(parent->data, root->data);
+		parent->next[dir] = root->next[dir];
+		return(root);
+	}
+	return(ret);
+}
+
+rtn_t *TRemove(rtree_t *tree, rtn_t **parent, rtn_t *root, void *key, is_before fp)
+{
+    int dir = -9;
+    rtn_t *next = NULL;
+    
+    if(!root)
+    {
+        return(NULL);
+    }
+    
+    if(!(dir = fp(root->data, key)))
+    {
+        if(IsEqual(fp, root->data, key))
+        {   
+        	dir = fp((*parent)->data, key);
+/*        	if root has only one child*/
+             if( !(root->next[dir]) || !(root->next[!dir]) )
+            {
+                if(root->next[dir])
+                {
+                    (*parent)->next[dir] = root->next[dir];
+                    free(root);
+                    return(NULL);
+                }
+            
+                (*parent)->next[dir] = root->next[!dir];
+                free(root);
+                return(NULL);
+            }
+/*			if root has 2 children, swap data with root next, and delete node root next */
+           next = Next(root, root->next[0], fp);
+           SwapData(&(next->data), &(root->data));
+           
+           free(next);
+           
+           return(NULL);
+        }
+    }
+
+    TRemove(tree, &root, root->next[dir], key, fp);
+/*    TBalance(tree, &root);*/
+    
+    return(NULL);
+}
+
 /* removes node with given key*/
-/*void RTreeRemove(rtree_t *tree, void *key);*/
+void RTreeRemove(rtree_t *tree, void *key)
+{
+    assert(tree);
+    assert(key);
+    
+    if(!tree)
+    {
+        return;
+    }
+	
+    TRemove(tree, &tree->r, tree->r, key, tree->func_ptr);
+    TBalance(tree, &tree->r);
+    
+    return;
+}
 
 
 static void *TFind(is_before fp, rtn_t *root, const void *seek)
@@ -395,14 +477,6 @@ int RTreeForEach(const rtree_t *tree, action_func fp, void *param)
 	
 	return(ret);
 }
-
-
-
-
-
-
-
-
 
 
 
